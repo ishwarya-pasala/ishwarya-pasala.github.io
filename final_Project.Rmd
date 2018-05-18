@@ -42,9 +42,9 @@ unemploy_df
 
 ```
 
-##### From the unemploy data frame we see that there are a total of 29 entities and 26 attributes. Each row contains a country and its unemployment percentage from the years 1981 to 2005. The first column represents the country in the type of characters while the year columns are of type double.  
+##### From the unemploy data frame we see that there are a total of 29 entities and 26 attributes. Each row contains a country and its unemployment percentage from the years 1981 to 2005. The first column represents the country which is of type character while the year columns are of type double.  
 
-##### Now, we can focus on adding more useful information to the unemploy data frame such as the region where countries are and also the location of the country. This information can help later on in analyzing how countries might influence unemployment percentages. We employ data manipulation practices of data scrapping where data usually comes in the form of text in the html of websites.
+##### Now, we can focus on adding more useful information to the unemploy data frame such as the region where countries are and also the location of the countries. This information can help later on in analyzing how countries might influence unemployment percentages. We employ data manipulation practices of data scrapping where data usually comes in the form of text in the html of websites.
 
 ##### First we will be scrapping region and sub-region data from the website: https://github.com/lukes/ISO-3166-Countries-with-Regional-Codes/blob/master/all/all.csv
 
@@ -147,7 +147,7 @@ location_df
 ##### Unfortunately, the current unemploy_df data is not in a tidy form so we need to fix it before being able to combine all three data frames.
 
 ### 2.2 Tidy unemploy_df
-##### A tidy data frame consists of one observation per row and a single variable per column. In our case the unemploy_df data frame has column headers as values and not variable names. The attributes it currently has are years from 1981 to 2005 which would be the data and not the column name. To fix this we need to have 3 attributes in total: country, year, and unemployment percentage. We can use the gather function which will create key-value columns.
+##### A tidy data frame consists of one observation per row and a single variable per column. In our case the unemploy_df data frame has column headers as values and not as column names. The attributes it currently has are years from 1981 to 2005 which should be part of the data and not as the column name. To fix this we need to have 3 attributes in total: country, year, and unemployment percentage. We can use the gather function which will create key-value columns.
 
 ```{R tidy, message=FALSE}
 
@@ -159,7 +159,7 @@ tidy_unemploy_df
 
 ```
 
-##### Since now the data frame is tidy we can clean it up further by renaming the first column as country and making year an integer using [<ins>stringr</ins>](https://www.rdocumentation.org/packages/stringr/versions/1.3.1) package to manipulate characters. At this point we can now combine all three data frames based on the attribute country. But before doing so we need to make sure the country names in all three data frame are the same. To ensure this we make the country names in all data frames to match the location_df country name.
+##### Since now the data frame is tidy we can clean it up further by renaming the first column as country and making year an integer type using [<ins>stringr</ins>](https://www.rdocumentation.org/packages/stringr/versions/1.3.1) package to manipulate characters. At this point we can now combine all three data frames based on the attribute country. But before doing so we need to make sure the country names in all three data frame are the same. To ensure this we make the country names in all data frames to match the location_df country name.
 
 ##### We find there are four countries in tidy_unemploy_df that do not match the location_df country names. We can manually fix this since there are only a few. Here is a [<ins>stringr cheat sheat</ins>](https://github.com/rstudio/cheatsheets/blob/master/strings.pdf) that can help us convert the following country names in unemploy dataframe to the respective matching country name:
   + Czech Rep. -> Czech Republic
@@ -208,7 +208,7 @@ comb_unemploy_df
 
 ### 3.1 Handling missing data
 
-##### Before analyzing or transforming our data in the comb_unemploy_df data frame, we need to figure out what to do with missing values in the unemploy_Percent column. Since we have a relatively small data set and a large fraction of the early years missing data we cannot remove the missing values. What we will do instead is replace the missing values with the overall mean unemployment percentage across all countries as to maintain standardization. The downside with this approach is that it can lead to making the spread relatively smaller but will make central tendency to remain the same. This is one note that must take into account during the analysis.
+##### Before analyzing or transforming our data in the comb_unemploy_df data frame, we need to figure out what to do with missing values in the unemploy_Percent column. Since we have a relatively small data set and a large fraction of the early years missing data we cannot remove the missing values. What we will do instead is replace the missing values with the overall mean unemployment percentage across all countries as to maintain standardization. The downside with this approach is that it can lead to making the spread relatively smaller but will make central tendency to remain the same. This is one note that must be taken into account during the analysis portionas it can lead to overconfidence in the results.
 
 ##### Now let us alter the missing values to become the mean unemployment percentage. 
 
@@ -266,7 +266,7 @@ comb_unemploy_df %>%
 
 ```
 
-##### From the histogram we see that unemployment percentage is skewed to the left meaning across all countries between the ages of 15-24 there is more amount of lower percentage rates than high. We can fix this using a log transformation with the transformed percentage called transformed_unemploy_Percent. Since all of our percentages are positive we can just apply log2 logarithmic transformation.
+##### From the histogram we see that unemployment percentage is skewed to the left. This means across all countries between the ages of 15-24 there is more amount of lower percentage rates than high. We can fix this skew by using a log transformation and convert unemploy_Percent to transformed_unemploy_Percent. Since all of our percentages are positive we can just apply log2 logarithmic transformation.
 
 ```{R plot4, message=FALSE}
 
@@ -277,11 +277,12 @@ transformed_unemploy_df
 
 transformed_unemploy_df %>%
   ggplot(aes(x=transformed_unemploy_Percent)) + 
-  geom_histogram()
+  geom_histogram() +
+  ggtitle("Count Distribution of Transformed Unemployment Percentage from 1981-2005")
 
 ```
 
-##### After the logarithmic transformation we can see that the distribution of unemployment percentages is now evened out. There is not as much skew as before. Furthermore, we can now see in more detail the various counts of the transformed unemployment percentage. To bring us back to seeing if there is a relation between year and percentages we can look at the scatter plot again to see if the trend is more obvious after the transformation.
+##### After the logarithmic transformation we can see that the distribution of unemployment percentages is now evened out. There is not as much skew as before. Furthermore, we can now see in more detail the various counts of the transformed unemployment percentage. To bring us back to seeing if there is a relation between year and percentages we can look at the scatter plot again to see if the trend is more obvious after the logarithmic transformation.
 
 
 ```{R plot5, message=FALSE}
@@ -311,7 +312,7 @@ transformed_unemploy_df %>%
 
 ```
 
-##### From the violin plot we how unemployment percentages vary based on the countries region. We see here how countries in Europe and Asia have more variation and range in terms of unemployment percentages while the others have less.
+##### From the violin plot we can see how unemployment percentages vary based on the countries region. We see here how countries in Europe and Asia have more variation and range in terms of unemployment percentages while the others have less. The reason that Europe has a lot more variation than the others could just be do to the fact that the there was more data from countries in Europe.
 
 ##### Let us see if unemployment percentage trends change over time based on a countries region.
 
@@ -328,7 +329,7 @@ transformed_unemploy_df %>%
 ```
 
 
-##### From the scatter plot we see there is clear visual evidence of the country being a part of a specific region and its influence on unemployment rates over time. We see Europe and Asia have increasing linear trends while Oceania and Americas have decreasing liner trends. We will later compare if regions or years are better predictors of unemployment percentages or if they are even good predictors at all.
+##### From the scatter plot we see there is clear visual evidence of the country being a part of a specific region and its influence on unemployment rates over time. We see Europe and Asia have increasing linear trends while Oceania and Americas have decreasing liner trends. We will later compare if region combined with year or year alone are better predictors of unemployment percentages or if they are even good predictors at all.
 
 ##### For more visual data representation let us look at a world map and see how the data relates using leaflet library. Here is a list references to understand how to use the visualization package:
   + https://rstudio.github.io/leaflet/markers.html
@@ -374,7 +375,7 @@ world_map
 
 ```
 
-##### In the leaflet map, countries with green icons represent those with mean unemployment percentage being lower than the world average from 1981 to 2005 while countries with red icons represent having mean unemployment percentage higher than the world average. Overall, we see that majority of countries have relative low unemployment rates. But, specifically in the European region we see much higher rates of unemployment than in comparison to other regions of the world. This gives more inclination to how regions might influence job rates.
+##### In the leaflet map, countries with green icons represent those with mean unemployment percentage being lower than the world average from 1981 to 2005 while countries with red icons represent having mean unemployment percentage higher than the world average. Overall, we see that majority of countries have relatively low unemployment rates. But, specifically in the European region we see much higher rates of unemployment than in comparison to other regions of the world. This gives more inclination to how regions might influence job rates.
 
 ## 4 Hypothesis Testing
 
@@ -396,7 +397,7 @@ unemploy_stats
 
 ```
 
-##### From our statistical results we see that our p-value of 0.06 after rounding to 2 decimal places is greater than our significance level of 0.05. Thus we can accept our null hypothesis, meaning there is no relationship between year and unemployment percentage. We see that overall from 1981 to 2005, the percentage of unemployment increases by 0.08% (rounded to 2 decimal places) for each additional year, which is relatively low. Even though the scatter plot seems to show a linear trend there is none between year and unemployment percentage.
+##### From our statistical results we see that our p-value of 0.06 after rounding to 2 decimal places is greater than our significance level of 0.05. Thus we can accept our null hypothesis, meaning there is no relationship between year and unemployment percentage. We see that overall from 1981 to 2005, the percentage of unemployment increases by 0.08% (rounded to 2 decimal places) for each additional year, which is relatively low. Even though the scatter plot seems to show a linear trend there is no relationship between year and unemployment percentage.
 
 ##### Now let us test the null hypothesis that year and region as an interactive term is a good predictor of unemployment percentage. Again, let us test this by fitting a linear regression model and running a t-test.
 
@@ -410,7 +411,7 @@ unemploy_region_stats
 
 ```
 
-##### From our statistical results we see that all our p-values are larger than our significance level of 0.05, except for Asia and year:Asia. These two terms have p-value of 0.03, rounded to 2 decimal places, and is less than 0.05 suggesting that we can reject the null hypothesis. But since the rest of the data suggests that we should accept the null hypothesis, we can conclude that year and region as a interactive model does not fit our data well. What we get out of this test is that using the data of Asia it predicts well the unemployment rate in comparison to the other regions.
+##### From our statistical results we see that all our p-values are larger than our significance level of 0.05, except for Asia and year:Asia. These two terms have p-value of 0.03, rounded to 2 decimal places, and is less than 0.05 suggesting that we can reject the null hypothesis. But since the rest of the data suggests that we should accept the null hypothesis, we can conclude that year and region as an interactive term may or may not have a relationship with unemployment rate. What we get out of this test is that using the data of Asia it predicts the unemployment rate well in comparison to the other regions.
 
 ##### To see which of the two models fits well, we will use the aov function and do F-tests.The following website describes in detail how to understand the results of an F-test: http://www.statisticshowto.com/probability-and-statistics/f-statistic-value-test/. 
 
@@ -426,7 +427,7 @@ unemploy_region_lm_aov %>% tidy()
 
 ```
 
-##### In both analyses we see that the F-statistic is larger than 1 so that we can reject the null hypothesis, meaning there is some relation between year and unemployment percentage or there is some relationship between year and region/year interaction term. But looking at our first model we see that our p-value, 0.06473194, is bigger than 0.05 meaning our results are not statistically significant, so our model is not a good fit for our data. The second model with the interaction term shows that the p-value for the interactive term, 0.058, is larger than 0.05 which means it is not statistically significant and not a good fit for our data. However the p-value for region shows statistically significant results as the p-values is less than 0.05, meaning the model fits partially. So, overall the second model by having less residual, helps make it the better fitting model when compared to the first.
+##### In both analyses we see that the F-statistic is larger than 1 so that we can reject the null hypothesis, meaning there is some relation between year and unemployment percentage or there is some relationship between year/region interactive term and unemployment percentage. But looking at our first model we see that our p-value, 0.06473194, is bigger than 0.05 meaning our results are not statistically significant, so our model is not a good fit for our data. The second model with the interaction term shows that the p-value for the interactive term, 0.058, is larger than 0.05 which means it is not statistically significant and not a good fit for our data. However the p-value for region shows statistically significant results as the p-values is less than 0.05, meaning the model fits partially. So, overall the second model by having less residual, helps make it the better fitting model when compared to the first.
 
 ## 5 Machine Learning 
 
@@ -460,7 +461,7 @@ outcome_df
 
 ```
 
-##### Now let us add the outcome direction into our predictor table and make sure the direction, up or down, is represented as factors since the outcome needs to be binary. Then we will find error rates using random forest for both models, first by making training and test data for each.
+##### Now let us add the outcome direction into our predictor table and make sure the direction, up or down, is represented as factors since the outcome needs to be binary. We also make the region as a factor in order to by used correctly by random forest. Then we will find error rates using random forest for both models, first by making training and test data for each.
 
 ##### Starting with the model of year as predictor of unemployment percentage we get random forest results as below.
 
@@ -490,7 +491,7 @@ mean(test_year_set$direction != test_predictions) * 100
 
 ```
 
-##### Based on test data set the model by using random forest predicts if unemployment goes up or down in 2005 with an error rate of 39.08%
+##### Based on the test data set, the model by using random forest predicts if unemployment goes up or down in 2005 with an error rate of 39.08%
 
 ##### Now let us do the same but this time using the model of year*region as predictor of unemployment percentage
 
@@ -516,7 +517,7 @@ mean(test_region_set$direction != test_predictions) * 100
 
 ```
 
-##### Based on test data set the model of interaction by using random forest predicts if unemployment goes up or down in 2005 with an error rate of 37.06%. We see that this interaction model is able to predict with more accuracy in comparison to the second model which has higher error rate.
+##### Based on the test data set, the model of interaction by using random forest predicts if unemployment goes up or down in 2005 with an error rate of 37.06%. We see that this interaction model is able to predict with more accuracy in comparison to the first year only model which has higher error rate.
 
 ##### We can further test which model worked better by looking at [<ins>AUROC curves</ins>](https://rocr.bioinf.mpi-sb.mpg.de/). We do so by first importing the library ROCR which contains the functionality needed to build the curves.
 
@@ -530,7 +531,7 @@ pred_year <- prediction(prediction_year[,2], test_year_set$direction)
 
 auc_year <- unlist(performance(pred_year, "auc")@y.values)
 
-plot(performance(pred_year, "tpr", "fpr"), main=paste("No Quarter To Quarter Change AUROC=", round(auc_year, 2)), lwd=1.4, cex.lab=1.7, cex.main=1.5)
+plot(performance(pred_year, "tpr", "fpr"), main=paste("Year Predictor AUROC=", round(auc_year, 2)), lwd=1.4, cex.lab=1.7, cex.main=1.5)
 
 prediction_region <- predict(rf_region, newdata=test_region_set %>% select(unemploy_Percent,direction,year,region), type="prob")
 
@@ -538,16 +539,16 @@ pred_region <- prediction(prediction_region[,2], test_region_set$direction)
 
 auc_region <- unlist(performance(pred_region, "auc")@y.values)
 
-plot(performance(pred_region, "tpr", "fpr"), main=paste("No Quarter To Quarter Change AUROC=", round(auc_region, 2)), lwd=1.4, cex.lab=1.7, cex.main=1.5)
+plot(performance(pred_region, "tpr", "fpr"), main=paste("Year*Region Predictor AUROC=", round(auc_region, 2)), lwd=1.4, cex.lab=1.7, cex.main=1.5)
 
 
 ```
 
-##### From the AUROC curves we see there is a big difference in predicting accuracy. The first model used year as a predictor and the curve shows the auroc value as 0.44 while the model using year*region as a predictor shows the auroc value as 0.63. The second curve covers a lot more area underneath its curve and is closer to the optimal value of 1. This means the second model was able to predict about 63% of the unemployment percentages going or down from 2004 to 2005. Overall, the second model seems to be the better fit for predicting unemployment percentages.
+##### From the AUROC curves we see there is a big difference in predicting accuracy. The first model used year as a predictor and the curve shows the auroc value as 0.44 while the model using year*region as a predictor shows the auroc value as 0.63. The second curve covers a lot more area underneath its curve and is closer to the optimal value of 1. This means the second model was able to predict about 63% of the unemployment percentages going or down from 2004 to 2005. Overall, the second model of using year and region as an interactive term seems to be the better fit for predicting unemployment percentages.
 
 ## 6 Conclusion
 
-##### With evidence from both the linear regression model and machine learning process we find that we can estimate unemployment percentages between the year of 1981 to 2005 among 15 to 24 years old the best through combining year and regions where the country is located. After looking at the results we see that model did predict the percentages with some error rate. This can be due to the fact that our data itself had a lot of missing data on unemployment percentage, especially near the beginning of the years. Had we found more authentic data instead of filling it in with the mean percentage it could have resulted in better correlations and thus help us find better predictors for our data.  
+##### With evidence from both the linear regression model and machine learning process we find that we can estimate unemployment percentages between the year of 1981 to 2005 among 15 to 24 years old the best through combining year and regions where the country is located. After looking at the results we see that model did predict the percentages but did so with some error rate. This can be due to the fact that our data itself had a lot of missing data on unemployment percentage, especially near the beginning of the years. Had we found more authentic data instead of filling it in with the mean percentage it could have resulted in better correlations and thus help us find better predictors for our data.  
 
 #### Resources for analysis methods:
  + Linear Regression: http://r-statistics.co/Linear-Regression.html
